@@ -1,0 +1,29 @@
+name: billder-backend
+services:
+- name: billder-backend
+  source:
+    type: git
+    repository: your-github-repo-url
+    branch: main
+    working_directory: backend
+  run:
+    command: cd billder && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:$PORT
+  env:
+  - name: DEBUG
+    value: "False"
+  - name: SECRET_KEY
+    value: "your-super-secret-key-here"
+  - name: ALLOWED_HOSTS
+    value: "your-koyeb-domain.koyeb.app,localhost,127.0.0.1,0.0.0.0"
+  - name: STRIPE_PUBLISHABLE_KEY
+    value: "pk_live_your_live_publishable_key"
+  - name: STRIPE_SECRET_KEY
+    value: "sk_live_your_live_secret_key"
+  - name: STRIPE_WEBHOOK_SECRET
+    value: "whsec_your_webhook_secret"
+  - name: FRONTEND_URL
+    value: "https://your-frontend-domain.vercel.app"
+  - name: BACKEND_URL
+    value: "https://your-koyeb-domain.koyeb.app"
+  - name: PUBLIC_INVOICE_BASE_URL
+    value: "https://your-frontend-domain.vercel.app/invoice"
