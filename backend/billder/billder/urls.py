@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/', include('finance.urls')),
     path('health/', lambda request: HttpResponse('OK'), name='health'),
+    path('', lambda request: HttpResponse('Billder API is running!'), name='home'),
 ]
 
 # Serve static files in production

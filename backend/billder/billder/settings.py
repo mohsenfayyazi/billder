@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -178,3 +179,6 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_your_webh
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 BACKEND_URL = os.environ.get('BACKEND_URL', 'http://127.0.0.1:8000')
 PUBLIC_INVOICE_BASE_URL = os.environ.get('PUBLIC_INVOICE_BASE_URL', 'http://localhost:3000/invoice')
+
+# WhiteNoise configuration for static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
