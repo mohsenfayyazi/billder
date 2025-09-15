@@ -31,7 +31,7 @@ else:
 
 # Collect static files
 echo "Collecting static files..."
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --clear
 
 # Start server
 echo "Starting server..."
