@@ -45,12 +45,11 @@ export default function PublicInvoiceDetails() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [payments, setPayments] = useState<PaymentData[]>([]);
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [pdfGenerating, setPdfGenerating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const autoGeneratePDF = useCallback(async (invoiceData: Invoice, paymentsData: PaymentData[]) => {
+  const autoGeneratePDF = useCallback(async (invoiceData: Invoice, paymentsData: PaymentData[] = []) => {
     if (pdfGenerating || pdfGenerated) return;
     
     setPdfGenerating(true);

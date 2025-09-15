@@ -1,5 +1,10 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
+// Simple CSRF token generation
+const getCSRFToken = (): string => {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
 export async function fetchInvoices(filters = {}) {
   try {
     const token = localStorage.getItem('token');
@@ -15,6 +20,7 @@ export async function fetchInvoices(filters = {}) {
       headers: {
         'Authorization': `Token ${token}`,
         'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken(),
       },
     });
 
@@ -51,6 +57,7 @@ export async function fetchInvoice(id: string) {
       headers: {
         'Authorization': `Token ${token}`,
         'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken(),
       },
     });
 

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { fetchInvoices } from '@/lib/api';
-import PaymentStatus from '@/components/PaymentStatus';
 import ClientOnly from '@/components/ClientOnly';
 
 interface Invoice {
@@ -106,7 +105,7 @@ export default function CustomerInvoices() {
               <div className="card-body text-center py-5">
                 <i className="bi bi-file-text display-1 text-muted"></i>
                 <h5 className="card-title mt-3">No Invoices Found</h5>
-                <p className="card-text text-muted">You don't have any invoices yet.</p>
+                <p className="card-text text-muted">You don&apos;t have any invoices yet.</p>
               </div>
             </div>
           ) : (

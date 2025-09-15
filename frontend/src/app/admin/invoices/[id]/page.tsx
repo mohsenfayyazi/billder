@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { fetchInvoice } from '@/lib/api';
 import { createRefund, getInvoicePayments, getRefunds } from '@/lib/refundApi';
 import { generateInvoicePDF } from '@/lib/pdfUtils';
@@ -265,9 +266,9 @@ export default function InvoiceDetails() {
                 <i className="bi bi-share me-1"></i>
                 Share Link
               </button>
-              <a href="/admin/invoices" className="btn btn-outline-secondary">
+              <Link href="/admin/invoices" className="btn btn-outline-secondary">
                 ← Back to Invoices
-              </a>
+              </Link>
             </div>
           </div>
 

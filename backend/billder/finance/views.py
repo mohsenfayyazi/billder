@@ -23,6 +23,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 class InvoiceViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing invoices.
+    
+    Provides CRUD operations for invoices with role-based access:
+    - Business owners: Can see invoices they created
+    - Customers: Can see invoices assigned to them
+    """
     queryset = Invoice.objects.none()  # Empty queryset by default
     serializer_class = InvoiceListSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -33,33 +40,41 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter invoices based on user role"""
-        user = self.request.user
-        
-        # Check user role and filter accordingly
-        if hasattr(user, 'role'):
-            if user.role == 'business_owner':
-                # Business owners see invoices they created
-                queryset = Invoice.objects.filter(owner=user).select_related('customer', 'owner')
-            elif user.role == 'customer':
-                # Customers see invoices assigned to them
-                queryset = Invoice.objects.filter(customer=user).select_related('customer', 'owner')
+        try:
+            user = self.request.user
+            
+            # Check user role and filter accordingly
+            if hasattr(user, 'role'):
+                if user.role == 'business_owner':
+                    # Business owners see invoices they created
+                    queryset = Invoice.objects.filter(owner=user).select_related('customer', 'owner')
+                elif user.role == 'customer':
+                    # Customers see invoices assigned to them
+                    queryset = Invoice.objects.filter(customer=user).select_related('customer', 'owner')
+                else:
+                    # Default: no invoices for unknown roles
+                    queryset = Invoice.objects.none()
             else:
-                # Default: no invoices for unknown roles
-                queryset = Invoice.objects.none()
-        else:
-            # Fallback: filter by owner (old behavior)
-            queryset = Invoice.objects.filter(owner=user).select_related('customer', 'owner')
-        
-        # Manual filtering for status and currency
-        status = self.request.query_params.get('status', None)
-        if status:
-            queryset = queryset.filter(status=status)
+                # Fallback: filter by owner (old behavior)
+                queryset = Invoice.objects.filter(owner=user).select_related('customer', 'owner')
             
-        currency = self.request.query_params.get('currency', None)
-        if currency:
-            queryset = queryset.filter(currency=currency)
-            
-        return queryset
+            # Manual filtering for status and currency
+            status = self.request.query_params.get('status', None)
+            if status:
+                if status not in [choice[0] for choice in Invoice.Status.choices]:
+                    raise ValueError(f"Invalid status '{status}'. Valid options: {[choice[0] for choice in Invoice.Status.choices]}")
+                queryset = queryset.filter(status=status)
+                
+            currency = self.request.query_params.get('currency', None)
+            if currency:
+                if len(currency) != 3:
+                    raise ValueError("Currency must be a 3-letter code (e.g., 'CAD', 'USD')")
+                queryset = queryset.filter(currency=currency.upper())
+                
+            return queryset
+        except Exception as e:
+            logger.error(f"Error filtering invoices: {str(e)}")
+            return Invoice.objects.none()
 
     def get_serializer_class(self):
         """Use different serializers for different actions"""
@@ -80,13 +95,23 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """Create invoice - only business owners allowed"""
-        # Check if user is a business owner
-        if hasattr(request.user, 'role') and request.user.role != 'business_owner':
+        try:
+            # Check if user is a business owner
+            if hasattr(request.user, 'role') and request.user.role != 'business_owner':
+                return Response({
+                    'error': 'Access denied',
+                    'message': 'Only business owners can create invoices. Please contact support if you believe this is an error.',
+                    'code': 'INSUFFICIENT_PERMISSIONS'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            return super().create(request, *args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error creating invoice: {str(e)}")
             return Response({
-                'error': 'Only business owners can create invoices'
-            }, status=status.HTTP_403_FORBIDDEN)
-        
-        return super().create(request, *args, **kwargs)
+                'error': 'Failed to create invoice',
+                'message': 'An unexpected error occurred. Please try again or contact support.',
+                'code': 'INVOICE_CREATION_FAILED'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'])
     def total_amount(self, request):

@@ -1,4 +1,4 @@
-import { Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
+import { Stripe } from '@stripe/stripe-js';
 import { STRIPE_ERRORS } from './stripe';
 
 // Payment intent status types
@@ -197,7 +197,7 @@ export const getPaymentStatusColor = (status: PaymentIntentStatus): string => {
   }
 };
 
-export default {
+const stripeUtils = {
   getStripeErrorMessage,
   formatAmount,
   formatAmountForStripe,
@@ -211,3 +211,5 @@ export default {
   getPaymentStatusText,
   getPaymentStatusColor,
 };
+
+export default stripeUtils;

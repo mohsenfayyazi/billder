@@ -3,12 +3,14 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class Role(models.TextChoices):
+    """User roles for access control"""
     ADMIN = "admin"
     USER = "user"
     BUSINESS_OWNER = "business_owner"
     CUSTOMER = "customer"
 
 class UserManager(BaseUserManager):
+    """Custom user manager for email-based authentication"""
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')

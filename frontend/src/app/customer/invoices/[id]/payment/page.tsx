@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { fetchInvoice } from '@/lib/api';
 import PaymentForm from '@/components/PaymentForm';
 import ClientOnly from '@/components/ClientOnly';
@@ -34,17 +35,15 @@ export default function CustomerPaymentPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [mounted, setMounted] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
 
   useEffect(() => {
-    setMounted(true);
     if (params.id) {
       loadInvoice();
     }
-  }, [params.id]);
+  }, [params.id, loadInvoice]);
 
-  const loadInvoice = async () => {
+  const loadInvoice = useCallback(async () => {
     try {
       const data = await fetchInvoice(params.id as string);
       setInvoice(data);
@@ -55,7 +54,7 @@ export default function CustomerPaymentPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id]);
 
   const getRemainingAmount = () => {
     if (!invoice) return '0.00';
@@ -73,7 +72,7 @@ export default function CustomerPaymentPage() {
     return remaining > 0 && invoice?.status !== 'paid';
   };
 
-  const handlePaymentSuccess = (payment: any) => {
+  const handlePaymentSuccess = () => {
     // Redirect to invoice details page
     router.push(`/customer/invoices/${invoice?.id}`);
   };
@@ -107,9 +106,9 @@ export default function CustomerPaymentPage() {
             <div className="alert alert-danger" role="alert">
               {error || 'Invoice not found'}
             </div>
-            <a href="/customer/invoices" className="btn btn-outline-secondary">
+            <Link href="/customer/invoices" className="btn btn-outline-secondary">
               Back to Invoices
-            </a>
+            </Link>
           </div>
         </div>
       </div>

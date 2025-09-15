@@ -26,8 +26,8 @@ export default function InvoicesList() {
       try {
         const data = await fetchInvoices();
         setInvoices(data.results || data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
@@ -82,7 +82,7 @@ export default function InvoicesList() {
             <div className="card">
               <div className="card-body text-center py-5">
                 <h5 className="card-title">No Invoices Found</h5>
-                <p className="card-text text-muted">You haven't created any invoices yet.</p>
+                <p className="card-text text-muted">You haven&apos;t created any invoices yet.</p>
               </div>
             </div>
           ) : (

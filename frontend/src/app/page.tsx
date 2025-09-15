@@ -34,7 +34,7 @@ export default function Home() {
           localStorage.removeItem('user');
           localStorage.removeItem('tokenExpiry');
         }
-      } catch (error) {
+      } catch {
         // Invalid user data, clear storage
         localStorage.removeItem('token');
         localStorage.removeItem('user');

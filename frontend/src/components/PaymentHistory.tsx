@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import PaymentStatus from './PaymentStatus';
 import ClientOnly from './ClientOnly';
 
 interface Payment {
@@ -22,11 +20,6 @@ interface PaymentHistoryProps {
 }
 
 export default function PaymentHistory({ payments, className = '' }: PaymentHistoryProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   if (payments.length === 0) {
     return (
       <div className={`p-4 text-center text-gray-500 ${className}`}>

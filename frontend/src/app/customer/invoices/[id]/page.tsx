@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { fetchInvoice, fetchInvoicePayments } from '@/lib/api';
 import PaymentForm from '@/components/PaymentForm';
 import PaymentHistory from '@/components/PaymentHistory';
@@ -35,18 +36,16 @@ export default function CustomerInvoiceDetails() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [payments, setPayments] = useState([]);
-  const [mounted, setMounted] = useState(false);
+  const [payments, setPayments] = useState<PaymentData[]>([]);
   const [paymentAmount, setPaymentAmount] = useState('');
 
   useEffect(() => {
-    setMounted(true);
     if (params.id) {
       loadInvoice();
     }
-  }, [params.id]);
+  }, [params.id, loadInvoice]);
 
-  const loadInvoice = async () => {
+  const loadInvoice = useCallback(async () => {
     try {
       const [invoiceData, paymentsData] = await Promise.all([
         fetchInvoice(params.id as string),
@@ -65,7 +64,7 @@ export default function CustomerInvoiceDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id]);
 
   const getRemainingAmount = () => {
     if (!invoice) return '0.00';
@@ -92,7 +91,7 @@ export default function CustomerInvoiceDetails() {
     return canPay;
   };
 
-  const handlePaymentSuccess = async (payment: any) => {
+  const handlePaymentSuccess = async (payment: unknown) => {
     console.log('Payment successful, reloading invoice...', payment);
     // Add a small delay to allow backend to process the payment
     setTimeout(async () => {
@@ -145,10 +144,10 @@ export default function CustomerInvoiceDetails() {
               <h1 className="h3 mb-0">Invoice {invoice.reference}</h1>
               <p className="text-muted mb-0">Invoice details and payment</p>
             </div>
-            <a href="/customer/invoices" className="btn btn-outline-secondary">
+            <Link href="/customer/invoices" className="btn btn-outline-secondary">
               <i className="bi bi-arrow-left me-1"></i>
               Back to Invoices
-            </a>
+            </Link>
           </div>
 
           <div className="row">

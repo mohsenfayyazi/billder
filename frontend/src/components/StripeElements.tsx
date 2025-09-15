@@ -10,11 +10,12 @@ import {
 } from '@stripe/react-stripe-js';
 import { STRIPE_CONFIG, ELEMENTS_OPTIONS, STRIPE_ERRORS } from '@/lib/stripe';
 import { getStripeErrorMessage } from '@/lib/stripeUtils';
+import { isValidAmount } from '@/lib/simpleValidation';
 
 // Props for the Stripe Elements wrapper
 interface StripeElementsProps {
   clientSecret: string;
-  onPaymentSuccess?: (paymentIntent: any) => void;
+  onPaymentSuccess?: (paymentIntent: unknown) => void;
   onPaymentError?: (error: string) => void;
   onPaymentProcessing?: () => void;
   children?: React.ReactNode;
@@ -23,7 +24,7 @@ interface StripeElementsProps {
 
 // Payment form component
 const PaymentForm: React.FC<{
-  onPaymentSuccess?: (paymentIntent: any) => void;
+  onPaymentSuccess?: (paymentIntent: unknown) => void;
   onPaymentError?: (error: string) => void;
   onPaymentProcessing?: () => void;
 }> = ({ onPaymentSuccess, onPaymentError, onPaymentProcessing }) => {
@@ -37,6 +38,13 @@ const PaymentForm: React.FC<{
 
     if (!stripe || !elements) {
       setError(STRIPE_ERRORS.STRIPE_NOT_LOADED);
+      return;
+    }
+
+    // Simple validation - check if payment element is ready
+    const paymentElement = elements.getElement(PaymentElement);
+    if (!paymentElement) {
+      setError('Payment form not ready. Please try again.');
       return;
     }
 
@@ -122,7 +130,7 @@ const StripeElements: React.FC<StripeElementsProps> = ({
   children,
   className = '',
 }) => {
-  const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
+  const [stripePromise, setStripePromise] = useState<Promise<unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

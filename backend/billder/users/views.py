@@ -8,34 +8,84 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing users.
+    
+    Provides user registration, login, and profile management.
+    Uses token-based authentication for API access.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
         """User registration endpoint"""
-        serializer = UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
+        try:
+            serializer = UserRegistrationSerializer(data=request.data)
+            if serializer.is_valid():
+                user = serializer.save()
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({
+                    'message': 'Account created successfully',
+                    'token': token.key,
+                    'user': UserSerializer(user).data
+                }, status=status.HTTP_201_CREATED)
+            
+            # Format validation errors for better user experience
+            formatted_errors = {}
+            for field, errors in serializer.errors.items():
+                if isinstance(errors, list):
+                    formatted_errors[field] = errors[0] if errors else 'Invalid value'
+                else:
+                    formatted_errors[field] = str(errors)
+            
             return Response({
-                'token': token.key,
-                'user': UserSerializer(user).data
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                'error': 'Registration failed',
+                'message': 'Please check the information provided and try again.',
+                'details': formatted_errors,
+                'code': 'VALIDATION_ERROR'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                'error': 'Registration failed',
+                'message': 'An unexpected error occurred. Please try again later.',
+                'code': 'REGISTRATION_FAILED'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def login(self, request):
         """User login endpoint using Token Authentication"""
-        serializer = UserLoginSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.validated_data['user']
-            token, created = Token.objects.get_or_create(user=user)
+        try:
+            serializer = UserLoginSerializer(data=request.data)
+            if serializer.is_valid():
+                user = serializer.validated_data['user']
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({
+                    'message': 'Login successful',
+                    'token': token.key,
+                    'user': UserSerializer(user).data
+                })
+            
+            # Format login errors
+            formatted_errors = {}
+            for field, errors in serializer.errors.items():
+                if isinstance(errors, list):
+                    formatted_errors[field] = errors[0] if errors else 'Invalid value'
+                else:
+                    formatted_errors[field] = str(errors)
+            
             return Response({
-                'token': token.key,
-                'user': UserSerializer(user).data
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                'error': 'Login failed',
+                'message': 'Invalid email or password. Please check your credentials and try again.',
+                'details': formatted_errors,
+                'code': 'AUTHENTICATION_FAILED'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({
+                'error': 'Login failed',
+                'message': 'An unexpected error occurred. Please try again later.',
+                'code': 'LOGIN_FAILED'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def logout(self, request):

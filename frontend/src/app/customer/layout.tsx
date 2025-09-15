@@ -10,7 +10,7 @@ export default function CustomerLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{first_name: string; last_name: string; email: string} | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 

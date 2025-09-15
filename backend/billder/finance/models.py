@@ -6,6 +6,11 @@ import uuid
 
 
 class Invoice(models.Model):
+    """
+    Invoice model representing a bill sent to a customer.
+    
+    Tracks payment status, amounts, and provides public access via slug.
+    """
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"
         PARTIALLY_PAID = "partially_paid", "Partially Paid"

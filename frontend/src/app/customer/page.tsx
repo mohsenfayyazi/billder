@@ -1,22 +1,58 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ErrorMessage from '@/components/ErrorMessage';
+import { useApiError } from '@/hooks/useApiError';
 
 export default function CustomerDashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{first_name: string; last_name: string; email: string} | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { error, handleError, clearError } = useApiError();
 
   useEffect(() => {
-    // Get user data from localStorage
-    const userData = localStorage.getItem('user');
-    if (userData) {
+    const loadUserData = async () => {
       try {
-        const user = JSON.parse(userData);
-        setUser(user);
+        setLoading(true);
+        clearError();
+        
+        // Get user data from localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          setUser(user);
+        } else {
+          throw new Error('No user data found. Please log in again.');
+        }
       } catch (error) {
-        console.error('Error parsing user data:', error);
+        handleError(error);
+      } finally {
+        setLoading(false);
       }
-    }
-  }, []);
+    };
+
+    loadUserData();
+  }, [handleError, clearError]);
+
+  if (loading) {
+    return <LoadingSpinner fullScreen text="Loading dashboard..." />;
+  }
+
+  if (error) {
+    return (
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-12">
+            <ErrorMessage
+              error={error}
+              title="Failed to Load Dashboard"
+              onDismiss={clearError}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid">

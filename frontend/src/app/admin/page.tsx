@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { fetchTotalAmount, fetchCustomerStats } from '@/lib/api';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ErrorMessage from '@/components/ErrorMessage';
+import { useApiError } from '@/hooks/useApiError';
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{first_name: string; last_name: string; email: string} | null>(null);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [totalCustomers, setTotalCustomers] = useState<number>(0);
   const [customersWithBalance, setCustomersWithBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const { error, handleError, clearError, retry } = useApiError();
 
   // Calculate remaining balance with proper decimal formatting
   const remainingBalance = parseFloat((totalAmount - totalPaid).toFixed(2));
@@ -29,6 +33,9 @@ export default function AdminDashboard() {
     // Fetch total amount and customers
     async function loadData() {
       try {
+        setLoading(true);
+        clearError();
+        
         const [amountData, customerStatsData] = await Promise.all([
           fetchTotalAmount(),
           fetchCustomerStats()
@@ -38,7 +45,7 @@ export default function AdminDashboard() {
         setTotalCustomers(customerStatsData.total_customers || 0);
         setCustomersWithBalance(customerStatsData.customers_with_balance || 0);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        handleError(error);
       } finally {
         setLoading(false);
       }
@@ -46,6 +53,27 @@ export default function AdminDashboard() {
 
     loadData();
   }, []);
+
+  if (loading) {
+    return <LoadingSpinner fullScreen text="Loading dashboard..." />;
+  }
+
+  if (error) {
+    return (
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-12">
+            <ErrorMessage
+              error={error}
+              title="Failed to Load Dashboard"
+              onRetry={retry}
+              onDismiss={clearError}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid">

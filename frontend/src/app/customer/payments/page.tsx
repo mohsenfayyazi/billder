@@ -22,12 +22,10 @@ export default function CustomerPayments() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    setMounted(true);
     loadPayments();
   }, []);
 
