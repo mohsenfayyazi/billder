@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' 
+  ? 'http://127.0.0.1:8000/api' 
+  : 'https://mobile-enrica-billder-b7b36c60.koyeb.app/api');
 
 export async function fetchInvoices(filters = {}) {
   try {

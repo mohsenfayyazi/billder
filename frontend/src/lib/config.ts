@@ -5,8 +5,8 @@ const getApiUrl = () => {
     return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
   }
   
-  // Production URL
-  return process.env.NEXT_PUBLIC_API_URL || 'https://your-production-domain.com/api';
+  // Production URL - Your Koyeb backend
+  return process.env.NEXT_PUBLIC_API_URL || 'https://mobile-enrica-billder-b7b36c60.koyeb.app/api';
 };
 
 export const API_CONFIG = {
