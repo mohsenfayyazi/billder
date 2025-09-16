@@ -39,22 +39,13 @@ export default function CustomerInvoiceDetails() {
   const [payments, setPayments] = useState<PaymentData[]>([]);
   const [paymentAmount, setPaymentAmount] = useState('');
 
-  useEffect(() => {
-    if (params.id) {
-      loadInvoice();
-    }
-  }, [params.id, loadInvoice]);
-
   const loadInvoice = useCallback(async () => {
     try {
       const [invoiceData, paymentsData] = await Promise.all([
         fetchInvoice(params.id as string),
         fetchInvoicePayments(params.id as string)
       ]);
-      console.log('Loaded invoice data:', invoiceData);
-      console.log('Remaining balance:', invoiceData.remaining_balance);
-      console.log('Amount paid:', invoiceData.amount_paid);
-      console.log('Total amount:', invoiceData.total_amount);
+      
       setInvoice(invoiceData);
       setPayments(paymentsData.results || paymentsData || []);
       setPaymentAmount(invoiceData.remaining_balance || (parseFloat(invoiceData.total_amount) - parseFloat(invoiceData.amount_paid)).toFixed(2));
@@ -65,6 +56,12 @@ export default function CustomerInvoiceDetails() {
       setLoading(false);
     }
   }, [params.id]);
+
+  useEffect(() => {
+    if (params.id) {
+      loadInvoice();
+    }
+  }, [params.id, loadInvoice]);
 
   const getRemainingAmount = () => {
     if (!invoice) return '0.00';

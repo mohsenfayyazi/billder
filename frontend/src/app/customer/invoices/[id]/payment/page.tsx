@@ -35,13 +35,8 @@ export default function CustomerPaymentPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [paymentAmount, setPaymentAmount] = useState('');
-
-  useEffect(() => {
-    if (params.id) {
-      loadInvoice();
-    }
-  }, [params.id, loadInvoice]);
 
   const loadInvoice = useCallback(async () => {
     try {
@@ -55,6 +50,12 @@ export default function CustomerPaymentPage() {
       setLoading(false);
     }
   }, [params.id]);
+
+  useEffect(() => {
+    if (params.id) {
+      loadInvoice();
+    }
+  }, [params.id, loadInvoice]);
 
   const getRemainingAmount = () => {
     if (!invoice) return '0.00';
@@ -72,13 +73,16 @@ export default function CustomerPaymentPage() {
     return remaining > 0 && invoice?.status !== 'paid';
   };
 
-  const handlePaymentSuccess = () => {
-    // Redirect to invoice details page
-    router.push(`/customer/invoices/${invoice?.id}`);
+  const handlePaymentSuccess = (payment: unknown) => {
+    console.log('Payment successful:', payment);
+    // Show success message in green
+    setSuccess('Payment successful! You can now close this page or navigate back to your invoices.');
+    setError(''); // Clear any error messages
   };
 
   const handlePaymentError = (error: string) => {
     console.error('Payment error:', error);
+    setError(error);
   };
 
   if (loading) {
@@ -214,6 +218,18 @@ export default function CustomerPaymentPage() {
                     <div className="text-danger mt-1">
                       <i className="bi bi-exclamation-triangle me-1"></i>
                       Amount cannot exceed remaining balance
+                    </div>
+                  )}
+                  {success && (
+                    <div className="mt-2 p-3 border rounded" style={{backgroundColor: '#d4edda', borderColor: '#c3e6cb', color: '#155724'}}>
+                      <i className="bi bi-check-circle me-2" style={{color: '#28a745'}}></i>
+                      <strong>{success}</strong>
+                    </div>
+                  )}
+                  {error && (
+                    <div className="mt-2 p-2 border rounded bg-red-50 border-red-200 text-red-600">
+                      <i className="bi bi-exclamation-triangle me-1"></i>
+                      {error}
                     </div>
                   )}
                 </div>

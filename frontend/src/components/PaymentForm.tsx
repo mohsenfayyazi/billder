@@ -6,7 +6,16 @@ import { loadStripe } from '@stripe/stripe-js';
 import { createPayment } from '@/lib/paymentApi';
 import StripeCheckout from './StripeCheckout';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_publishable_key_here');
+// Debug environment variable loading
+console.log('Environment check:', {
+  NODE_ENV: process.env.NODE_ENV,
+  STRIPE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  STRIPE_KEY_LENGTH: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.length
+});
+
+// Temporary hardcoded key for testing
+const STRIPE_KEY = 'pk_test_51S5uZ3Q32SJRAkKp9KUQM3IBuUWe2KkZ9qPhvsNviOcllSan8q1JN0RpjkRsSHPB2yuQgWAEp6PqTReh3FfDXrgQ00R84l5SGt';
+const stripePromise = loadStripe(STRIPE_KEY);
 
 interface PaymentFormProps {
   invoiceId: string;
