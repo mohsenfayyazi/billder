@@ -36,7 +36,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'billder.csrf_middleware.CsrfExemptMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -149,3 +149,18 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_your_webh
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 BACKEND_URL = os.environ.get('BACKEND_URL', 'http://127.0.0.1:8000')
 PUBLIC_INVOICE_BASE_URL = os.environ.get('PUBLIC_INVOICE_BASE_URL', 'http://localhost:3000/invoice')
+
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://mobile-enrica-billder-b7b36c60.koyeb.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://localhost:3000',
+    'https://127.0.0.1:3000',
+] + [origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+
+# Exempt API endpoints from CSRF protection since we use Token Authentication
+CSRF_EXEMPT_URLS = [
+    r'^/api/',
+    r'^/admin/',
+]

@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'billder.csrf_middleware.CsrfExemptMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -170,15 +170,22 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Stripe Configuration
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', 'pk_test_your_publishable_key_here')
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_your_secret_key_here')
-STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_your_webhook_secret_here')
 
-# Frontend URLs
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
-BACKEND_URL = os.environ.get('BACKEND_URL', 'http://127.0.0.1:8000')
-PUBLIC_INVOICE_BASE_URL = os.environ.get('PUBLIC_INVOICE_BASE_URL', 'http://localhost:3000/invoice')
 
 # WhiteNoise configuration for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://mobile-enrica-billder-b7b36c60.koyeb.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://localhost:3000',
+    'https://127.0.0.1:3000',
+] + [origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+
+# Exempt API endpoints from CSRF protection since we use Token Authentication
+CSRF_EXEMPT_URLS = [
+    r'^/api/',
+    r'^/admin/',
+]
